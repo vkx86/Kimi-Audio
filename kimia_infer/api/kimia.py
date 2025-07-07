@@ -27,7 +27,9 @@ class KimiAudio(object):
         self.alm = AutoModelForCausalLM.from_pretrained(
             cache_path, torch_dtype=torch.bfloat16, trust_remote_code=True
         )
-        self.alm = self.alm.to(torch.cuda.current_device())
+
+        # self.alm = self.alm.to(torch.cuda.current_device())
+        self.alm = self.alm.to("cuda:0")
 
         model_config = self.alm.config
         self.kimia_text_audiodelaytokens = model_config.kimia_mimo_audiodelaytokens
@@ -288,7 +290,10 @@ class KimiAudio(object):
         chunk_size = 30  # hard-coded right now
         first_chunk_size = 30
         cache_speech_collection = []
-        audio_tokens = audio_tokens.to(torch.cuda.current_device())
+        audio_tokens = audio_tokens.to(
+            # torch.cuda.current_device()
+            "cuda:1"
+            )
         audio_tokens = audio_tokens.long()
         num_audio_tokens = audio_tokens.size(1)
         first_chunk_semantic_tokens = audio_tokens[:, :first_chunk_size]

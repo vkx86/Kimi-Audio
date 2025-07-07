@@ -15,7 +15,10 @@ from kimia_infer.utils.special_tokens import instantiate_extra_tokens
 class KimiAPromptManager:
     def __init__(self, model_path: str, kimia_token_offset: int, kimia_text_audiodelaytokens: int):
         self.audio_tokenizer = Glm4Tokenizer("THUDM/glm-4-voice-tokenizer")
-        self.audio_tokenizer = self.audio_tokenizer.to(torch.cuda.current_device())
+        self.audio_tokenizer = self.audio_tokenizer.to(
+            torch.cuda.current_device()
+            # 'cuda:1'
+            )
 
         logger.info(f"Looking for resources in {model_path}")
         logger.info(f"Loading whisper model")
@@ -23,7 +26,10 @@ class KimiAPromptManager:
         self.whisper_model = WhisperEncoder(
             os.path.join(model_path, "whisper-large-v3"), mel_batch_size=20
         )
-        self.whisper_model = self.whisper_model.to(torch.cuda.current_device())
+        self.whisper_model = self.whisper_model.to(
+            torch.cuda.current_device()
+            # 'cuda:1'
+            )
         self.whisper_model = self.whisper_model.bfloat16()
         self.whisper_model.eval()
 
@@ -66,7 +72,10 @@ class KimiAPromptManager:
         else:
             raise ValueError(f"Invalid wav type: {type(wav)}")
         assert self.whisper_model is not None
-        wav_tensor = wav_tensor.to(torch.cuda.current_device())
+        wav_tensor = wav_tensor.to(
+            torch.cuda.current_device()
+            # 'cuda:1'
+            )
         continous_feature = self.whisper_model.tokenize_waveform(wav_tensor)
         continous_feature = continous_feature.reshape(
             continous_feature.shape[0],

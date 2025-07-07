@@ -266,6 +266,7 @@ def get_audio_detokenizer(model_path):
     bigvgan_ckpt_path = os.path.join(model_path, "vocoder", "model.pt")
 
     device = torch.cuda.current_device()
+    # device = 'cuda:1'
     detokenizer = PrefixStreamingFlowMatchingDetokenizer.from_pretrained(
         vocoder_config=bigvgan_config_file,
         vocoder_ckpt=bigvgan_ckpt_path,

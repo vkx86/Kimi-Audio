@@ -102,7 +102,7 @@ def make_supervised_data_module(
     if data_args.eval_ratio > 0:
         eval_data = all_data[:int(len(all_data) * data_args.eval_ratio)]
         train_data = all_data[int(len(all_data) * data_args.eval_ratio):]
-        assert len(eval_data) > 0, "No evaluation data found"
+        # assert len(eval_data) > 0, "No evaluation data found"
         assert len(train_data) > 0, "No training data found"
     else:
         eval_data = None

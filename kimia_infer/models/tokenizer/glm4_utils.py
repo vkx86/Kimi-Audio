@@ -72,8 +72,14 @@ def extract_speech_token(model: WhisperVQEncoder, feature_extractor: WhisperFeat
             features = feature_extractor(audios[start: start + batch_size], sampling_rate=16000,
                                          return_attention_mask=True, return_tensors="pt", device=torch.cuda.current_device(),
                                          padding="longest", pad_to_multiple_of=stride)
-            features["input_features"] = features["input_features"].to(torch.cuda.current_device()).to(dtype)
-            features["attention_mask"] = features["attention_mask"].to(torch.cuda.current_device())
+            features["input_features"] = features["input_features"].to(
+                torch.cuda.current_device()
+                # 'cuda:1'
+                ).to(dtype)
+            features["attention_mask"] = features["attention_mask"].to(
+                torch.cuda.current_device()
+                # 'cuda:1'
+                )
             # import ipdb; ipdb.set_trace()
             outputs = model(**features)
             speech_tokens = outputs.quantized_token_ids

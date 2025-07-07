@@ -203,15 +203,22 @@ class WhisperEncoder(nn.Module):
                 input_seq_lens_list = [token_len * 4]
                 input_seq_lens = torch.LongTensor(input_seq_lens_list).to(
                     torch.cuda.current_device()
+                    # 'cuda:1'
                 )
                 audio_embedding = self.speech_encoder(
-                    mel.unsqueeze(0).to(torch.cuda.current_device()).to(torch.bfloat16),
+                    mel.unsqueeze(0).to(
+                        torch.cuda.current_device()
+                        # 'cuda:1'
+                        ).to(torch.bfloat16),
                     return_dict=True,
                     input_seq_lens=input_seq_lens,
                 ).last_hidden_state
             else:
                 audio_embedding = self.speech_encoder(
-                    mel.unsqueeze(0).to(torch.cuda.current_device()).to(torch.bfloat16),
+                    mel.unsqueeze(0).to(
+                        torch.cuda.current_device()
+                        # 'cuda:1'
+                        ).to(torch.bfloat16),
                     return_dict=True,
                 ).last_hidden_state
                 # audio_embedding: [1, 3000, 1280]
