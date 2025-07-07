@@ -169,7 +169,7 @@ conf
 *.parquet
 *.progress
 # Vscode
-.vscode
+# .vscode
 
 *.safetensors
 *.model
