@@ -64,6 +64,15 @@ bash finetune_codes/finetune_ds.sh \
     --data "finetune_codes/demo_data/audio_understanding/data_with_semantic_codes.jsonl"
 ```
 
+_LoRA_
+
+```bash
+bash finetune_codes/finetune_lora_ds.sh \
+    --model_path "output/pretrained_hf" \
+    --data "finetune_codes/demo_data/audio_understanding/data_with_semantic_codes.jsonl"
+```
+
+
 4. Convert the finetuned model for inference.
 ```bash
 CUDA_VISIBLE_DEVICES=0 python -m finetune_codes.model --model_name "moonshotai/Kimi-Audio-7B" \

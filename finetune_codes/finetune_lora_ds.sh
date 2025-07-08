@@ -24,10 +24,14 @@ MASTER_ADDR=${MASTER_ADDR:-localhost}
 MASTER_PORT=${MASTER_PORT:-6001}
 
 MODEL="moonshotai/Kimi-Audio-7B" # Set the path if you do not want to load from huggingface directly
+
+PRETRAINED_MODEL_PATH=""
+
 # ATTENTION: specify the path to your training data, which should be a json file consisting of a list of conversations.
 # See the section for finetuning in README for more information.
 DATA=""
-DS_CONFIG_PATH="finetune/ds_config_zero2.json"
+DS_CONFIG_PATH="finetune_codes/ds_config_zero2.json"
+
 
 function usage() {
     echo '
@@ -37,9 +41,9 @@ Usage: bash finetune/finetune_lora_ds.sh [-m MODEL_PATH] [-d DATA_PATH] [--deeps
 
 while [[ "$1" != "" ]]; do
     case $1 in
-        -m | --model )
+        -m | --model_path )
             shift
-            MODEL=$1
+            PRETRAINED_MODEL_PATH=$1
             ;;
         -d | --data )
             shift
@@ -71,6 +75,7 @@ DISTRIBUTED_ARGS="
 
 torchrun $DISTRIBUTED_ARGS finetune.py \
     --model_name_or_path $MODEL \
+    --model_path $PRETRAINED_MODEL_PATH \
     --data_path $DATA \
     --bf16 True \
     --output_dir output_qwen \
@@ -78,7 +83,7 @@ torchrun $DISTRIBUTED_ARGS finetune.py \
     --per_device_train_batch_size 2 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 8 \
-    --evaluation_strategy "no" \
+    # --evaluation_strategy "no" \
     --save_strategy "steps" \
     --save_steps 1000 \
     --save_total_limit 10 \
