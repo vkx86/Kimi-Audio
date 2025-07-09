@@ -27,7 +27,7 @@ messages_asr = [
     # You can provide context or instructions as text
     {"role": "user", "message_type": "text", "content": "Please transcribe the following audio:"},
     # Provide the audio file path
-    {"role": "user", "message_type": "audio", "content": "/workspaces/kimi/Kimi-Audio/test_audios/asr_example.wav"}
+    {"role": "user", "message_type": "audio", "content": "/root/Kimi-Audio/test_audios/asr_example.wav"}
 ]
 
 # Generate only text output
@@ -38,7 +38,7 @@ print(">>> ASR Output Text: ", text_output) # Expected output: "这并不是告�
 # --- 4. Example 2: Audio-to-Audio/Text Conversation ---
 messages_conversation = [
     # Start conversation with an audio query
-    {"role": "user", "message_type": "audio", "content": "/workspaces/kimi/Kimi-Audio/test_audios/qa_example.wav"}
+    {"role": "user", "message_type": "audio", "content": "/root/Kimi-Audio/test_audios/qa_example.wav"}
 ]
 
 # Generate both audio and text output
@@ -53,10 +53,10 @@ print(">>> Conversational Output Text: ", text_output) # Expected output: "当�
 # --- 5. Example 3: Audio-to-Audio/Text Conversation with Multiturn ---
 
 messages = [
-    {"role": "user", "message_type": "audio", "content": "/workspaces/kimi/Kimi-Audio/test_audios/multiturn/case2/multiturn_q1.wav"},
+    {"role": "user", "message_type": "audio", "content": "/root/Kimi-Audio/test_audios/multiturn/case2/multiturn_q1.wav"},
     # This is the first turn output of Kimi-Audio
-    {"role": "assistant", "message_type": "audio-text", "content": ["/workspaces/kimi/Kimi-Audio/test_audios/multiturn/case2/multiturn_a1.wav", "当然可以，这很简单。一二三四五六七八九十。"]},
-    {"role": "user", "message_type": "audio", "content": "/workspaces/kimi/Kimi-Audio/test_audios/multiturn/case2/multiturn_q2.wav"}
+    {"role": "assistant", "message_type": "audio-text", "content": ["/root/Kimi-Audio/test_audios/multiturn/case2/multiturn_a1.wav", "当然可以，这很简单。一二三四五六七八九十。"]},
+    {"role": "user", "message_type": "audio", "content": "/root/Kimi-Audio/test_audios/multiturn/case2/multiturn_q2.wav"}
 ]
 wav, text = model.generate(messages, **sampling_params, output_type="both")
 

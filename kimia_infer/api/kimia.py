@@ -28,8 +28,8 @@ class KimiAudio(object):
             cache_path, torch_dtype=torch.bfloat16, trust_remote_code=True
         )
 
-        # self.alm = self.alm.to(torch.cuda.current_device())
-        self.alm = self.alm.to("cuda:0")
+        self.alm = self.alm.to(torch.cuda.current_device())
+        # self.alm = self.alm.to("cuda:0")
 
         model_config = self.alm.config
         self.kimia_text_audiodelaytokens = model_config.kimia_mimo_audiodelaytokens
@@ -291,8 +291,8 @@ class KimiAudio(object):
         first_chunk_size = 30
         cache_speech_collection = []
         audio_tokens = audio_tokens.to(
-            # torch.cuda.current_device()
-            "cuda:1"
+            torch.cuda.current_device()
+            # "cuda:1"
             )
         audio_tokens = audio_tokens.long()
         num_audio_tokens = audio_tokens.size(1)

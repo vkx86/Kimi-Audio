@@ -242,7 +242,7 @@ class LazySupervisedDataset(Dataset):
     
     @staticmethod
     def collate_fn(batch):
-        assert len(batch) == 1, "micro batch size is 1 for demo"
+        # assert len(batch) == 1, "micro batch size is 1 for demo"
 
         return batch[0]
         

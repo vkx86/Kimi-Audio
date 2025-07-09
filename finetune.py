@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 import json
 import logging
 import os
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 import torch
 from deepspeed import zero
@@ -16,6 +16,7 @@ from transformers.integrations import deepspeed
 from transformers.trainer_pt_utils import LabelSmoother
 from accelerate.utils import DistributedType
 from huggingface_hub import snapshot_download
+from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 
 from finetune_codes.model import KimiAudioModel
 from finetune_codes.datasets import LazySupervisedDataset
@@ -55,7 +56,20 @@ class TrainingArguments(transformers.TrainingArguments):
             "help": "Maximum sequence length. Sequences will be right padded (and possibly truncated)."
         },
     )
+    use_lora: bool = False
 
+
+@dataclass
+class LoraArguments:
+    lora_r: int = 64
+    lora_alpha: int = 16
+    lora_dropout: float = 0.05
+    lora_target_modules: List[str] = field(
+        default_factory=lambda: ["c_attn", "c_proj", "w1", "w2"]
+    )
+    lora_weight_path: str = ""
+    lora_bias: str = "none"
+    q_lora: bool = False
 
 
 def maybe_zero_3(param):
@@ -139,12 +153,13 @@ def train():
     global local_rank
 
     parser = transformers.HfArgumentParser(
-        (ModelArguments, DataArguments, TrainingArguments)
+        (ModelArguments, DataArguments, TrainingArguments, LoraArguments)
     )
     (
         model_args,
         data_args,
         training_args,
+        lora_args,
     ) = parser.parse_args_into_dataclasses()
 
     # This serves for single-gpu qlora.
@@ -156,6 +171,15 @@ def train():
     model_load_kwargs = {
         'low_cpu_mem_usage': not deepspeed.is_deepspeed_zero3_enabled(),
     }
+
+    is_chat_model = 'chat' in model_args.model_name_or_path.lower()
+    if (
+            training_args.use_lora
+            and not lora_args.q_lora
+            and deepspeed.is_deepspeed_zero3_enabled()
+            and not is_chat_model
+    ):
+        raise RuntimeError("ZeRO3 is incompatible with LoRA when finetuning on base model.")
 
     logger.info(f"Loading kimi-audio main model")
 
@@ -177,6 +201,37 @@ def train():
     text_tokenizer = AutoTokenizer.from_pretrained(
         cache_path, trust_remote_code=True
     )
+
+    if training_args.use_lora:
+        print('==>> LORA training!!!')
+        if lora_args.q_lora or is_chat_model:
+            print('==>> lora_args.q_lora or is_chat_model')
+            modules_to_save = None
+        else:
+            print('==>> FALSE !!! lora_args.q_lora or is_chat_model')
+            modules_to_save = ["wte", "lm_head"]
+
+        lora_config = LoraConfig(
+            r=lora_args.lora_r,
+            lora_alpha=lora_args.lora_alpha,
+            target_modules=lora_args.lora_target_modules,
+            lora_dropout=lora_args.lora_dropout,
+            bias=lora_args.lora_bias,
+            task_type="CAUSAL_LM",
+            modules_to_save=modules_to_save  # This argument serves for adding new tokens.
+        )
+        if lora_args.q_lora:
+            model = prepare_model_for_kbit_training(
+                model, use_gradient_checkpointing=training_args.gradient_checkpointing
+            )
+
+        model = get_peft_model(model, lora_config)
+
+        # Print peft trainable params
+        model.print_trainable_parameters()
+
+        if training_args.gradient_checkpointing:
+            model.enable_input_require_grads()    
 
     # Load data
     data_module = make_supervised_data_module(
