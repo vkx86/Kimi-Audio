@@ -65,7 +65,7 @@ class LoraArguments:
     lora_alpha: int = 16
     lora_dropout: float = 0.05
     lora_target_modules: List[str] = field(
-        default_factory=lambda: ["c_attn", "c_proj", "w1", "w2"]
+        default_factory=lambda: ["q_proj", "v_proj"]
     )
     lora_weight_path: str = ""
     lora_bias: str = "none"
@@ -197,6 +197,10 @@ def train():
     model = KimiAudioModel.from_pretrained(model_args.model_path, 
                                            device_map=None,
                                            **model_load_kwargs)
+    
+    print('\nMODEL\n')    
+    print(model)    
+    print('\n\n')    
 
     text_tokenizer = AutoTokenizer.from_pretrained(
         cache_path, trust_remote_code=True
