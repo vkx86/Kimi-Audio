@@ -78,12 +78,12 @@ torchrun $DISTRIBUTED_ARGS finetune.py \
     --model_path $PRETRAINED_MODEL_PATH \
     --data_path $DATA \
     --bf16 True \
-    --output_dir output_qwen \
+    --output_dir output_kimi \
     --num_train_epochs 5 \
     --per_device_train_batch_size 2 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 8 \
-    # --evaluation_strategy "no" \
+    --eval_strategy "no" \
     --save_strategy "steps" \
     --save_steps 1000 \
     --save_total_limit 10 \
@@ -96,6 +96,6 @@ torchrun $DISTRIBUTED_ARGS finetune.py \
     --report_to "none" \
     --model_max_length 512 \
     --lazy_preprocess True \
-    --use_lora \
+    --use_lora True \
     --gradient_checkpointing \
     --deepspeed ${DS_CONFIG_PATH}

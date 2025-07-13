@@ -3,10 +3,12 @@
 {
 	"name": "kimi",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "pytorch/pytorch:2.6.0-cuda12.6-cudnn9-devel",
+	"image": "nvidia/cuda:12.8.1-cudnn-devel-ubuntu22.04",
+	"privileged": true,
 	"runArgs": [
     	"--gpus", "all",
-		"--network=host"
+		"--network=host",
+		"--ipc=host"
 	],
 
 	// "mounts": [

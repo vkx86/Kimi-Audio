@@ -1,3 +1,6 @@
 #!/bin/bash
 
-pip install flash-attn --no-build-isolation
+# pip install soundfile tqdm
+ln -s /usr/bin/python3.10 /usr/bin/python
+
+uname -a
