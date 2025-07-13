@@ -148,6 +148,22 @@ def compute_loss(outputs, labels, num_items_in_batch=None):
     loss = audio_loss + text_loss
     return loss
 
+# vk see ref
+# https://github.com/huggingface/peft/issues/1358#issuecomment-2083238276
+
+# Identify modules for fine-tuning with PEFT
+def find_all_linear_names(model):
+    # cls = bnb.nn.Linear4bit #if args.bits == 4 else (bnb.nn.Linear8bitLt if args.bits == 8 else torch.nn.Linear)
+    lora_module_names = set()
+    for name, module in model.named_modules():
+        # if isinstance(module, cls):
+        names = name.split('.')
+        lora_module_names.add(names[0] if len(names) == 1 else names[-1])
+    if 'lm_head' in lora_module_names: # needed for 16-bit
+        lora_module_names.remove('lm_head')
+
+    return list(lora_module_names)
+
 
 def train():
     global local_rank
@@ -202,17 +218,22 @@ def train():
     print(model)    
     print('\n\n')    
 
+    print('\nlinear_names\n')    
+    modules = find_all_linear_names(model)
+    print(modules)
+    print('\n\n')    
+
+
     text_tokenizer = AutoTokenizer.from_pretrained(
         cache_path, trust_remote_code=True
     )
 
     if training_args.use_lora:
-        print('==>> LORA training!!!')
         if lora_args.q_lora or is_chat_model:
-            print('==>> lora_args.q_lora or is_chat_model')
+            print('==>> QLoRA or Chat Model')
             modules_to_save = None
         else:
-            print('==>> FALSE !!! lora_args.q_lora or is_chat_model')
+            print('==>> LoRA')
             modules_to_save = ["wte", "lm_head"]
 
         lora_config = LoraConfig(
